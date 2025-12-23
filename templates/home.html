@@ -1,3 +1,358 @@
-<h1>
-Testing Page
-</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(to right, #4f6df5, #2d4be0);
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .content {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .result-section {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4f6df5;
+            box-shadow: 0 0 0 3px rgba(79, 109, 245, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 5px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-item input {
+            width: auto;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #4f6df5, #2d4be0);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 109, 245, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .prediction-text {
+            font-size: 1.8rem;
+            color: #2d4be0;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .explanation {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .explanation h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .explanation ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .explanation li {
+            margin-bottom: 8px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .explanation li:before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .feature-note {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 House Price Predictor</h1>
+            <p>Predict your house price using machine learning</p>
+        </div>
+        
+        <div class="content">
+            <div class="form-section">
+                <form action="/predict" method="POST">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="beds">Number of Bedrooms</label>
+                            <input type="number" id="beds" name="beds" 
+                                   min="1" max="10" step="1" 
+                                   value="{{ beds if beds else 3 }}" required>
+                            <div class="feature-note">Typical range: 1-10</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="bath">Number of Bathrooms</label>
+                            <input type="number" id="bath" name="bath" 
+                                   min="1" max="10" step="1" 
+                                   value="{{ bath if bath else 2 }}" required>
+                            <div class="feature-note">Typical range: 1-10</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="area_num">Area (Square Feet)</label>
+                        <input type="number" id="area_num" name="area_num" 
+                               min="100" max="10000" step="50" 
+                               value="{{ area_num if area_num else 1500 }}" required>
+                        <div class="feature-note">Enter area in square feet</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sublocation_enc">Sub-location Code</label>
+                            <input type="number" id="sublocation_enc" name="sublocation_enc" 
+                                   min="0" max="100" step="1" 
+                                   value="{{ sublocation_enc if sublocation_enc else 25 }}" required>
+                            <div class="feature-note">Encoded sub-location value</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="maincity_enc">City Code</label>
+                            <input type="number" id="maincity_enc" name="maincity_enc" 
+                                   min="0" max="50" step="1" 
+                                   value="{{ maincity_enc if maincity_enc else 10 }}" required>
+                            <div class="feature-note">Encoded city value</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Property Features</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="is_furnished" name="is_furnished" value="1" 
+                                       {% if is_furnished == 1 %}checked{% endif %}>
+                                <label for="is_furnished">Furnished</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="is_brand_new" name="is_brand_new" value="1" 
+                                       {% if is_brand_new == 1 %}checked{% endif %}>
+                                <label for="is_brand_new">Brand New</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn">Predict Price</button>
+                </form>
+            </div>
+            
+            <div class="result-section">
+                <h2>Prediction Result</h2>
+                {% if prediction_text %}
+                    <div class="result-box">
+                        <div class="prediction-text">{{ prediction_text }}</div>
+                        <p>Based on the input features</p>
+                    </div>
+                {% else %}
+                    <div class="result-box">
+                        <p>Fill in the form and click "Predict Price" to see the estimated house price</p>
+                    </div>
+                {% endif %}
+                
+                <div class="explanation">
+                    <h3>About the Model</h3>
+                    <ul>
+                        <li>Uses Machine Learning algorithm</li>
+                        <li>Trained on real estate data</li>
+                        <li>Considers 7 key features</li>
+                        <li>Provides accurate price estimates</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>House Price Prediction System | Built with Flask & Machine Learning</p>
+            <p>Note: This is a prediction model. Actual prices may vary based on market conditions.</p>
+        </div>
+    </div>
+
+    <script>
+        // Set default values for checkboxes when unchecked
+        document.getElementById('is_furnished').addEventListener('change', function() {
+            if (!this.checked) {
+                this.value = '0';
+            }
+        });
+        
+        document.getElementById('is_brand_new').addEventListener('change', function() {
+            if (!this.checked) {
+                this.value = '0';
+            }
+        });
+        
+        // Ensure checkboxes submit 0 or 1
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const furnished = document.getElementById('is_furnished');
+            const brandNew = document.getElementById('is_brand_new');
+            
+            // Create hidden inputs for unchecked checkboxes
+            if (!furnished.checked) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'is_furnished';
+                hiddenInput.value = '0';
+                this.appendChild(hiddenInput);
+            }
+            
+            if (!brandNew.checked) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'is_brand_new';
+                hiddenInput.value = '0';
+                this.appendChild(hiddenInput);
+            }
+        });
+    </script>
+</body>
+</html>
